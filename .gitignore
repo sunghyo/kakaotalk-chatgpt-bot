@@ -1,0 +1,53 @@
+# kakao talk chatgpt
+cache/
+
+# General Python ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+*.egg
+*.log
+*.pot
+*.db
+
+# Virtual Environment
+venv/
+env/
+*.venv
+.pyenv/
+
+# Flask specific
+instance/
+*.sqlite
+
+# Development tools and IDEs
+.cache
+.project
+.pydevproject
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Compiled files
+*.pyc
+__pycache__/
+
+# pytest
+.coverage
+.pytest_cache
+.tox
