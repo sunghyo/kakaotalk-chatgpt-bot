@@ -8,6 +8,14 @@
 
 - [x] 카카오톡 챗봇 api 5초 timeout 고려
 
+## 사용 예시
+
+- OpenGPT (챗지피티) 봇에서 확인해볼 수 있습니다.
+    - http://pf.kakao.com/_rhyxcxj
+
+<img src="https://user-images.githubusercontent.com/7691845/228002286-dc654651-dc8e-4cc0-9cc8-73861a7bed38.jpeg" width=300/>
+
+
 ## 라이브러리 설치
 
 ```bash
