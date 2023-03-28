@@ -52,7 +52,7 @@ def run_chat_gpt(messages, user_id):
         app.logger.error(f"run_chat_gpt error {e}\n{traceback.format_exc()}")
 
     if gpt_message is None:
-        cache.set(f"{user_id}-response", "ERROR")
+        cache.set(f"{user_id}-response", "[ERROR]")
 
 
 def init_user_messages(user_id):
@@ -121,12 +121,12 @@ def chatgpt():
     if user_info is None:
         # print(f"새로운 유저 init cache: {user_id}")
         cache.set(user_id, {"user_id": user_id, "chat_limit": 100})  # TODO: limit 구현
-        cache.set(f"{user_id}-response", "INIT")
+        cache.set(f"{user_id}-response", "[INIT]")
         init_user_messages(user_id)
 
     if user_text == "답변 확인 하기":
         gpt_message = cache.get(f"{user_id}-response")
-        if gpt_message is None:
+        if gpt_message == "[RUNNING]":
             while True:  # 최대 WAIT_TIME 만큼 답변 기다리기
                 gpt_message = cache.get(f"{user_id}-response")
                 if (gpt_message is not None) or (time.time() - start_time >= WAIT_TIME):
@@ -135,9 +135,9 @@ def chatgpt():
 
         if gpt_message is None:
             response = kakao_response_button()
-        elif gpt_message == "INIT":
+        elif gpt_message == "[INIT]":
             response = kakao_response_text("질문을 입력 해주세요.")
-        elif gpt_message == "ERROR":
+        elif gpt_message == "[ERROR]":
             response = kakao_response_text("오류가 발생하였습니다.")
         else:
             response = kakao_response_text(gpt_message)
@@ -147,6 +147,10 @@ def chatgpt():
         response = kakao_response_text("새로운 대화를 시작합니다.")
 
     else:
+        if cache.get(f"{user_id}-response") == "[RUNNING]":
+            response = kakao_response_text("답변을 준비하고 있습니다.")
+            return response
+
         messages, num_tokens = update_messages(user_id, user_text)
         if num_tokens > NUM_MAX_TOKEN:
             response = kakao_response_text("너무 긴 입력입니다. 다시 입력해주세요.")
@@ -154,7 +158,7 @@ def chatgpt():
             return response
 
         # run chat gpt
-        cache.set(f"{user_id}-response", None)
+        cache.set(f"{user_id}-response", "[RUNNING]")
         thread = Thread(target=run_chat_gpt, args=(messages, user_id))
         thread.daemon = True
         thread.start()
