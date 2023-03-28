@@ -129,11 +129,11 @@ def chatgpt():
         if gpt_message == "[RUNNING]":
             while True:  # 최대 WAIT_TIME 만큼 답변 기다리기
                 gpt_message = cache.get(f"{user_id}-response")
-                if (gpt_message is not None) or (time.time() - start_time >= WAIT_TIME):
+                if (gpt_message != "[RUNNING]") or (time.time() - start_time >= WAIT_TIME):
                     break
                 time.sleep(0.2)
 
-        if gpt_message is None:
+        if gpt_message == "[RUNNING]":
             response = kakao_response_button()
         elif gpt_message == "[INIT]":
             response = kakao_response_text("질문을 입력 해주세요.")
@@ -148,7 +148,7 @@ def chatgpt():
 
     else:
         if cache.get(f"{user_id}-response") == "[RUNNING]":
-            response = kakao_response_text("답변을 준비하고 있습니다.")
+            response = kakao_response_button()
             return response
 
         messages, num_tokens = update_messages(user_id, user_text)
@@ -163,14 +163,13 @@ def chatgpt():
         thread.daemon = True
         thread.start()
 
-        gpt_message = None
         while True:  # 최대 WAIT_TIME 만큼 답변 기다리기
             gpt_message = cache.get(f"{user_id}-response")
-            if (gpt_message is not None) or (time.time() - start_time >= WAIT_TIME):
+            if (gpt_message != "[RUNNING]") or (time.time() - start_time >= WAIT_TIME):
                 break
             time.sleep(0.2)
 
-        if gpt_message is None:
+        if gpt_message == "[RUNNING]":
             response = kakao_response_button()  # "답변을 준비하고 있습니다" 버튼
         else:
             response = kakao_response_text(gpt_message)  # chatgpt 답변
