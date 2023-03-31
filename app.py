@@ -6,6 +6,8 @@ from threading import Thread
 
 from flask import Flask, request, jsonify
 from flask_caching import Cache
+import atexit
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import openai
 from utils import num_tokens_from_messages
@@ -20,13 +22,19 @@ config = {
     "DEBUG": True,
     "CACHE_TYPE": "FileSystemCache",
     "CACHE_DEFAULT_TIMEOUT": 60 * 30,
-    "CACHE_THRESHOLD": 100000,
+    "CACHE_THRESHOLD": 10000,
     "CACHE_DIR": "cache",
 }
 
 app = Flask(__name__)
 app.config.from_mapping(config)
 cache = Cache(app)
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=cache.clear, trigger="interval", minutes=30)
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown()) # Shut down when exiting the app
 
 
 def run_chat_gpt(messages, user_id):
@@ -45,8 +53,9 @@ def run_chat_gpt(messages, user_id):
 
         # messages 캐시에 저장하기
         messages_cache = cache.get(f"{user_id}-messages")
-        messages_cache.append({"role": "assistant", "content": gpt_message})
-        cache.set(f"{user_id}-messages", messages_cache)
+        if messages_cache is not None:
+            messages_cache.append({"role": "assistant", "content": gpt_message})
+            cache.set(f"{user_id}-messages", messages_cache)
 
     except Exception as e:
         app.logger.error(f"run_chat_gpt error {e}\n{traceback.format_exc()}")

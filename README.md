@@ -7,6 +7,8 @@
 ## 구현된 기능
 
 - [x] 카카오톡 챗봇 api 5초 timeout 고려
+- [x] 30분 마다 사용자 정보 cache clear
+
 
 ## 사용 예시
 
@@ -19,7 +21,7 @@
 ## 라이브러리 설치
 
 ```bash
-pip install flask flask_caching tiktoken gunicorn
+pip install flask flask_caching APScheduler tiktoken gunicorn
 pip install --upgrade openai
 ```
 
